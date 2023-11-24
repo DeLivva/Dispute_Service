@@ -1,18 +1,33 @@
 version: "3.1"
 
 services:
+  dispute-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+    environment:
+      - SPRING_DATASOURCE_URL=${DB_URL}
+    networks:
+      - postgres
+    restart: unless-stopped
+
   postgres:
     container_name: postgres-dispute
     image: postgres:latest
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: 1234
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
       PGDATA: /data/postgres
       TZ: 'Asia/Tashkent'
-    volumes:
-      - postgres:/data/postgres
     ports:
-      - "5434:5432"
+      - "5432:5432"
+    volumes:
+      - ./init/db/create_db.sql:/docker-entrypoint-initdb.d/create_db.sql
+      - postgres:/data/postgres
     networks:
       - postgres
     restart: unless-stopped
@@ -21,13 +36,13 @@ services:
     container_name: pgadmin-dispute
     image: dpage/pgadmin4
     environment:
-      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-admin@gmail.com}
-      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-1234}
-      PGADMIN_CONFIG_SERVER_MODE: 'False'
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
+      PGADMIN_CONFIG_SERVER_MODE: ${PGADMIN_CONFIG_SERVER_MODE}
     volumes:
       - pgadmin:/var/lib/pgadmin
     ports:
-      - "5252:5050"
+      - "5252:80"
     networks:
       - postgres
     restart: unless-stopped
