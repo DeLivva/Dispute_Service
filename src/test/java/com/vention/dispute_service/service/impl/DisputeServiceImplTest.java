@@ -11,6 +11,7 @@ import com.vention.dispute_service.repository.DisputeTypeRepository;
 import com.vention.general.lib.dto.request.PaginationRequestDTO;
 import com.vention.general.lib.dto.response.ResponseWithPaginationDTO;
 import com.vention.general.lib.enums.OrderStatus;
+import com.vention.general.lib.exceptions.DataNotFoundException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -56,11 +57,11 @@ class DisputeServiceImplTest {
     public void testCreateDispute() {
         // Arrange
         DisputeCreateRequestDTO requestDTO = mock(DisputeCreateRequestDTO.class);
-        DisputeTypeEntity disputeType = new DisputeTypeEntity(); // Assuming DisputeType is a valid class
-        DisputeEntity disputeEntity = new DisputeEntity(); // Assuming DisputeEntity is a valid class
+        DisputeTypeEntity disputeType = new DisputeTypeEntity();
+        DisputeEntity disputeEntity = new DisputeEntity();
         DisputeResponseDTO expectedResponse = new DisputeResponseDTO(1L, "test", "test", 1L, 1L); // Assuming DisputeResponseDTO is a valid class
 
-        when(requestDTO.disputeTypeId()).thenReturn(1L);
+        when(requestDTO.getDisputeTypeId()).thenReturn(1L);
         when(disputeTypeRepository.findById(1L)).thenReturn(Optional.of(disputeType));
         when(disputeMapper.convertDtoToEntity(requestDTO)).thenReturn(disputeEntity);
         when(disputeRepository.save(any(DisputeEntity.class))).thenReturn(disputeEntity);
@@ -72,7 +73,19 @@ class DisputeServiceImplTest {
         // Assert
         assertEquals(expectedResponse, result);
         verify(disputeRepository).save(disputeEntity);
-        verify(coreServiceClient).changeOrderStatus(requestDTO.orderId(), OrderStatus.DISPUTE_OPENED);
+        verify(coreServiceClient).changeOrderStatus(requestDTO.getOrderId(), OrderStatus.DISPUTE_OPENED);
+    }
+
+    @Test
+    public void testCreateDisputeIfDisputeTypeNotFound() {
+        // Arrange
+        DisputeCreateRequestDTO requestDTO = mock(DisputeCreateRequestDTO.class);
+
+        when(requestDTO.getDisputeTypeId()).thenReturn(1L);
+        when(disputeTypeRepository.findById(1L)).thenThrow(new DataNotFoundException("dispute type not found with id: " + +1L));
+
+        // Assert
+        assertThrows(DataNotFoundException.class, () -> disputeService.create(requestDTO));
     }
 
     @Test

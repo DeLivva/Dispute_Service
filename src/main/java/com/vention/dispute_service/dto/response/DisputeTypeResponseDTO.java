@@ -1,7 +1,11 @@
 package com.vention.dispute_service.dto.response;
 
-public record DisputeTypeResponseDTO(
-        Long id,
-        String name
-) {
+import lombok.AllArgsConstructor;
+import lombok.Data;
+
+@Data
+@AllArgsConstructor
+public class DisputeTypeResponseDTO {
+    private Long id;
+    private String name;
 }

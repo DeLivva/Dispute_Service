@@ -1,5 +1,6 @@
 package com.vention.dispute_service.service.impl;
 
+import com.vention.dispute_service.domain.DisputeTypeEntity;
 import com.vention.dispute_service.dto.request.DisputeCreateRequestDTO;
 import com.vention.dispute_service.dto.response.DisputeResponseDTO;
 import com.vention.dispute_service.exception.ActionNotAllowedException;
@@ -32,12 +33,11 @@ public class DisputeServiceImpl implements DisputeService {
 
     @Override
     public DisputeResponseDTO create(DisputeCreateRequestDTO requestDTO) {
-        var disputeType = disputeTypeRepository.findById(requestDTO.disputeTypeId())
-                .orElseThrow(() -> new DataNotFoundException("dispute type not found with id: " + requestDTO.disputeTypeId()));
+        DisputeTypeEntity disputeType = getDisputeType(requestDTO.getDisputeTypeId());
         var disputeEntity = disputeMapper.convertDtoToEntity(requestDTO);
         disputeEntity.setType(disputeType);
         disputeEntity = disputeRepository.save(disputeEntity);
-        coreServiceClient.changeOrderStatus(requestDTO.orderId(), OrderStatus.DISPUTE_OPENED);
+        coreServiceClient.changeOrderStatus(requestDTO.getOrderId(), OrderStatus.DISPUTE_OPENED);
         return disputeMapper.convertEntityToDto(disputeEntity);
     }
 
@@ -72,5 +72,10 @@ public class DisputeServiceImpl implements DisputeService {
                 .data(all.stream().map(disputeMapper::convertEntityToDto)
                         .collect(Collectors.toList()))
                 .build();
+    }
+
+    private DisputeTypeEntity getDisputeType(Long disputeTypeId) {
+        return disputeTypeRepository.findById(disputeTypeId)
+                .orElseThrow(() -> new DataNotFoundException("dispute type not found with id: " + disputeTypeId));
     }
 }
