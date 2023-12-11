@@ -1,0 +1,36 @@
+databaseChangeLog:
+  - changeSet:
+      id: 3
+      author: Abbos
+      changes:
+        - insert:
+            tableName: dispute_type
+            columns:
+              - column:
+                  name: name
+                  value: Missed
+        - insert:
+            tableName: dispute_type
+            columns:
+              - column:
+                  name: name
+                  value: Damaged
+        - insert:
+            tableName: dispute_type
+            columns:
+              - column:
+                  name: name
+                  value: Wrong item
+
+  - changeSet:
+      id: 4
+      author: Abbos
+      changes:
+        - addColumn:
+            tableName: disputes
+            columns:
+              - column:
+                  name: user_id
+                  type: bigint
+                  constraints:
+                    nullable: false
