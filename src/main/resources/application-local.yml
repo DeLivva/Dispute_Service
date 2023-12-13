@@ -6,6 +6,12 @@ spring:
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
+  rabbitmq:
+    addresses: localhost
+    port: 5672
+    username: username
+    password: password
+    virtual-host: /
 
 cloud:
   core-service:
