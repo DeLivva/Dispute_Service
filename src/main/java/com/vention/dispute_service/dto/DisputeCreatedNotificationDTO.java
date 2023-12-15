@@ -8,5 +8,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class DisputeCreatedNotificationDTO {
+    private Long disputeId;
     private Long orderId;
+    private String ownerName;
+    private String driverName;
+    private String description;
 }

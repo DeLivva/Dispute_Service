@@ -1,5 +1,6 @@
 package com.vention.dispute_service.service.impl;
 
+import com.vention.dispute_service.domain.DisputeEntity;
 import com.vention.dispute_service.domain.DisputeTypeEntity;
 import com.vention.dispute_service.dto.DisputeCreatedNotificationDTO;
 import com.vention.dispute_service.dto.request.DisputeCreateRequestDTO;
@@ -44,19 +45,33 @@ public class DisputeServiceImpl implements DisputeService {
         disputeEntity.setType(disputeType);
         disputeEntity = disputeRepository.save(disputeEntity);
         coreServiceClient.changeOrderStatus(requestDTO.getOrderId(), OrderStatus.DISPUTE_OPENED);
-        notificationPublisher.notifyDisputeCreation(new DisputeCreatedNotificationDTO(disputeEntity.getOrderId()));
+        sendNotification(disputeEntity);
         return disputeMapper.convertEntityToDtoWithStatus(disputeEntity, OrderStatus.DISPUTE_OPENED);
+    }
+
+    private void sendNotification(DisputeEntity dispute) {
+        var order = coreServiceClient.getOrderById(dispute.getOrderId()).getBody();
+        if (Objects.isNull(order)) {
+            throw new DataNotFoundException("Order not found with id: " + dispute.getOrderId());
+        }
+        DisputeCreatedNotificationDTO notificationDTO = new DisputeCreatedNotificationDTO();
+        notificationDTO.setDisputeId(dispute.getId());
+        notificationDTO.setOrderId(dispute.getOrderId());
+        notificationDTO.setDescription(dispute.getDescription());
+        notificationDTO.setOwnerName(order.getCostumer().getFirstName() + " " + order.getCostumer().getLastName());
+        notificationDTO.setDriverName(order.getCostumer().getFirstName() + " " + order.getCourier().getLastName());
+        notificationPublisher.notifyDisputeCreation(notificationDTO);
     }
 
     @Override
     public void close(Long id) {
         var dispute = disputeRepository.findById(id)
-                .orElseThrow(() -> new DataNotFoundException("dispute not found with id: " + id));
-        var status = coreServiceClient.getStatusByOrderId(dispute.getOrderId()).getBody();
+                .orElseThrow(() -> new DataNotFoundException("Dispute not found with id: " + id));
+        var status = getStatusByOrderId(dispute.getOrderId());
         if (Objects.equals(status, OrderStatus.DISPUTE_OPENED)) {
             coreServiceClient.changeOrderStatus(dispute.getOrderId(), OrderStatus.DISPUTE_CLOSED_BY_CUSTOMER);
         } else {
-            throw new ActionNotAllowedException("disputes under consideration cannot be closed");
+            throw new ActionNotAllowedException("Disputes under consideration cannot be closed");
         }
     }
 
@@ -64,29 +79,32 @@ public class DisputeServiceImpl implements DisputeService {
     public List<DisputeResponseDTO> getByUserId(Long userId) {
         return disputeRepository.findByUserId(userId).stream()
                 .map(dispute -> disputeMapper
-                        .convertEntityToDtoWithStatus(dispute,
-                                coreServiceClient.getStatusByOrderId(dispute.getOrderId()).getBody()))
+                        .convertEntityToDtoWithStatus(dispute, getStatusByOrderId(dispute.getOrderId())))
                 .collect(Collectors.toList());
     }
 
     @Override
     public ResponseWithPaginationDTO<DisputeResponseDTO> getAll(PaginationRequestDTO requestDTO) {
-        Pageable pageable = PageRequest.of(requestDTO.page(), requestDTO.size());
+        Pageable pageable = PageRequest.of(requestDTO.getPage(), requestDTO.getSize());
         var all = disputeRepository.findAll(pageable);
         return ResponseWithPaginationDTO.<DisputeResponseDTO>builder()
-                .currentPage(requestDTO.page())
-                .pageSize(requestDTO.size())
+                .currentPage(requestDTO.getPage())
+                .pageSize(requestDTO.getSize())
                 .totalItems(all.getTotalElements())
                 .totalPages(all.getTotalPages())
                 .data(all.stream().map(dispute -> disputeMapper
-                                .convertEntityToDtoWithStatus(dispute,
-                                        coreServiceClient.getStatusByOrderId(dispute.getOrderId()).getBody()))
+                                .convertEntityToDtoWithStatus(dispute, getStatusByOrderId(dispute.getOrderId())))
                         .collect(Collectors.toList()))
                 .build();
     }
 
     private DisputeTypeEntity getDisputeType(Long disputeTypeId) {
         return disputeTypeRepository.findById(disputeTypeId)
-                .orElseThrow(() -> new DataNotFoundException("dispute type not found with id: " + disputeTypeId));
+                .orElseThrow(() -> new DataNotFoundException("Dispute type not found with id: " + disputeTypeId));
+    }
+
+    private OrderStatus getStatusByOrderId(Long orderId) {
+        var order = coreServiceClient.getOrderById(orderId).getBody();
+        return OrderStatus.getByName(order.getStatus());
     }
 }

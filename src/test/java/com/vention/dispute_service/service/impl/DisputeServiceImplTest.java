@@ -10,7 +10,9 @@ import com.vention.dispute_service.repository.DisputeRepository;
 import com.vention.dispute_service.repository.DisputeTypeRepository;
 import com.vention.dispute_service.service.NotificationPublisher;
 import com.vention.general.lib.dto.request.PaginationRequestDTO;
+import com.vention.general.lib.dto.response.OrderResponseDTO;
 import com.vention.general.lib.dto.response.ResponseWithPaginationDTO;
+import com.vention.general.lib.dto.response.UserResponseDTO;
 import com.vention.general.lib.enums.OrderStatus;
 import com.vention.general.lib.exceptions.DataNotFoundException;
 import org.junit.jupiter.api.Test;
@@ -70,6 +72,8 @@ class DisputeServiceImplTest {
         when(disputeMapper.convertDtoToEntity(requestDTO)).thenReturn(disputeEntity);
         when(disputeRepository.save(any(DisputeEntity.class))).thenReturn(disputeEntity);
         when(disputeMapper.convertEntityToDtoWithStatus(disputeEntity, OrderStatus.DISPUTE_OPENED)).thenReturn(expectedResponse);
+        when(coreServiceClient.getOrderById(any())).thenReturn(ResponseEntity.ok(getOrderResponse()));
+
         // Act
         DisputeResponseDTO result = disputeService.create(requestDTO);
 
@@ -115,10 +119,11 @@ class DisputeServiceImplTest {
         // Arrange
         Long disputeId = 1L;
         DisputeEntity disputeEntity = new DisputeEntity(); // Assuming DisputeEntity is a valid class
+        disputeEntity.setId(disputeId);
         disputeEntity.setOrderId(123L); // Set a mock order ID
 
         when(disputeRepository.findById(disputeId)).thenReturn(Optional.of(disputeEntity));
-        when(coreServiceClient.getStatusByOrderId(123L)).thenReturn(ResponseEntity.ok(OrderStatus.DISPUTE_OPENED));
+        when(coreServiceClient.getOrderById(123L)).thenReturn(ResponseEntity.ok(getOrderResponse()));
 
         // Act
         disputeService.close(disputeId);
@@ -126,7 +131,6 @@ class DisputeServiceImplTest {
         // Assert
         verify(coreServiceClient).changeOrderStatus(123L, OrderStatus.DISPUTE_CLOSED_BY_CUSTOMER);
     }
-
 
     @Test
     public void testGetDisputesByUserId() {
@@ -138,7 +142,7 @@ class DisputeServiceImplTest {
 
         when(disputeRepository.findByUserId(userId)).thenReturn(disputes);
         when(disputeMapper.convertEntityToDtoWithStatus(any(DisputeEntity.class), any(OrderStatus.class))).thenAnswer(i -> new DisputeResponseDTO());
-        when(coreServiceClient.getStatusByOrderId(any())).thenReturn(ResponseEntity.ok(OrderStatus.DISPUTE_OPENED));
+        when(coreServiceClient.getOrderById(any())).thenReturn(ResponseEntity.ok(getOrderResponse()));
 
         // Act
         List<DisputeResponseDTO> result = disputeService.getByUserId(userId);
@@ -155,7 +159,7 @@ class DisputeServiceImplTest {
         Page<DisputeEntity> page = new PageImpl<>(Arrays.asList(new DisputeEntity(), new DisputeEntity())); // Mock page
         when(disputeRepository.findAll(any(Pageable.class))).thenReturn(page);
         when(disputeMapper.convertEntityToDtoWithStatus(any(DisputeEntity.class), any(OrderStatus.class))).thenAnswer(i -> new DisputeResponseDTO());
-        when(coreServiceClient.getStatusByOrderId(any())).thenReturn(ResponseEntity.ok(OrderStatus.DISPUTE_OPENED));
+        when(coreServiceClient.getOrderById(any())).thenReturn(ResponseEntity.ok(getOrderResponse()));
 
         // Act
         ResponseWithPaginationDTO<DisputeResponseDTO> result = disputeService.getAll(requestDTO);
@@ -163,5 +167,14 @@ class DisputeServiceImplTest {
         // Assert
         assertNotNull(result);
         assertEquals(2, result.getData().size());
+    }
+
+    private OrderResponseDTO getOrderResponse() {
+        OrderResponseDTO orderResponseDTO = new OrderResponseDTO();
+        orderResponseDTO.setCostumer(new UserResponseDTO());
+        orderResponseDTO.setCourier(new UserResponseDTO());
+        orderResponseDTO.setStatus("DISPUTE_OPENED");
+        orderResponseDTO.setId(1L);
+        return orderResponseDTO;
     }
 }
