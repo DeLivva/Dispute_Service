@@ -14,13 +14,13 @@ public class NotificationPublisherImpl implements NotificationPublisher {
     private final RabbitTemplate rabbitTemplate;
 
     @Value("${rabbit.exchange}")
-    private final String EXCHANGE_NAME;
+    private String exchangeName;
 
     @Value("${rabbit.notification-routing-key}")
-    private final String DISPUTE_CREATION_ROUTING_KEY;
+    private String disputeServiceRoutingKey;
 
     @Override
     public void notifyDisputeCreation(DisputeCreatedNotificationDTO notificationDTO) {
-        rabbitTemplate.convertAndSend(EXCHANGE_NAME, DISPUTE_CREATION_ROUTING_KEY, notificationDTO);
+        rabbitTemplate.convertAndSend(exchangeName, disputeServiceRoutingKey, notificationDTO);
     }
 }
