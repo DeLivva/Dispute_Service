@@ -17,6 +17,10 @@ spring:
   profiles:
     active: local
 
+rabbit:
+  exchange: notification_direct_exchange
+  notification-routing-key: dispute_service_routing_key
+
 feign:
   client:
     config:
