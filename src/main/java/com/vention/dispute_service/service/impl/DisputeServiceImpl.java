@@ -41,10 +41,13 @@ public class DisputeServiceImpl implements DisputeService {
     @Transactional
     public DisputeResponseDTO create(DisputeCreateRequestDTO requestDTO) {
         DisputeTypeEntity disputeType = getDisputeType(requestDTO.getDisputeTypeId());
+        if (disputeRepository.existsByOrderId(requestDTO.getOrderId())) {
+            throw new ActionNotAllowedException("There is already dispute opened on this order: " + requestDTO.getOrderId());
+        }
         var disputeEntity = disputeMapper.convertDtoToEntity(requestDTO);
         disputeEntity.setType(disputeType);
         disputeEntity = disputeRepository.save(disputeEntity);
-        coreServiceClient.changeOrderStatus(requestDTO.getOrderId(), OrderStatus.DISPUTE_OPENED);
+//        coreServiceClient.changeOrderStatus(requestDTO.getOrderId(), OrderStatus.DISPUTE_OPENED);
         sendNotification(disputeEntity);
         return disputeMapper.convertEntityToDtoWithStatus(disputeEntity, OrderStatus.DISPUTE_OPENED);
     }
@@ -58,8 +61,8 @@ public class DisputeServiceImpl implements DisputeService {
         notificationDTO.setDisputeId(dispute.getId());
         notificationDTO.setOrderId(dispute.getOrderId());
         notificationDTO.setDescription(dispute.getDescription());
-        notificationDTO.setOwnerName(order.getCostumer().getFirstName() + " " + order.getCostumer().getLastName());
-        notificationDTO.setDriverName(order.getCostumer().getFirstName() + " " + order.getCourier().getLastName());
+//        notificationDTO.setOwnerName(order.getCostumer().getFirstName() + " " + order.getCostumer().getLastName());
+//        notificationDTO.setDriverName(order.getCostumer().getFirstName() + " " + order.getCourier().getLastName());
         notificationPublisher.notifyDisputeCreation(notificationDTO);
     }
 

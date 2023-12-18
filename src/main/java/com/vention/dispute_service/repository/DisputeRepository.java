@@ -10,4 +10,6 @@ import java.util.List;
 @Repository
 public interface DisputeRepository extends JpaRepository<DisputeEntity, Long>, PagingAndSortingRepository<DisputeEntity, Long> {
     List<DisputeEntity> findByUserId(Long userId);
+
+    Boolean existsByOrderId(Long orderId);
 }
