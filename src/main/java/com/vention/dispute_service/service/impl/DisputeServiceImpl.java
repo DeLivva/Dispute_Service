@@ -47,7 +47,7 @@ public class DisputeServiceImpl implements DisputeService {
         var disputeEntity = disputeMapper.convertDtoToEntity(requestDTO);
         disputeEntity.setType(disputeType);
         disputeEntity = disputeRepository.save(disputeEntity);
-//        coreServiceClient.changeOrderStatus(requestDTO.getOrderId(), OrderStatus.DISPUTE_OPENED);
+        coreServiceClient.changeOrderStatus(requestDTO.getOrderId(), OrderStatus.DISPUTE_OPENED);
         sendNotification(disputeEntity);
         return disputeMapper.convertEntityToDtoWithStatus(disputeEntity, OrderStatus.DISPUTE_OPENED);
     }

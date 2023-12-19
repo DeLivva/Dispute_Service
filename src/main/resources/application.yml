@@ -15,7 +15,7 @@ spring:
     enabled: true
     change-log: classpath:/db/changelog/db.changelog-master.yaml
   profiles:
-    active: local
+    active: dev
 
 rabbit:
   exchange: notification_direct_exchange
