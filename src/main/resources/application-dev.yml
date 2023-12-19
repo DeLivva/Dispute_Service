@@ -1,0 +1,16 @@
+spring:
+  config:
+    import: optional:file:.env[.properties]
+  datasource:
+    url: jdbc:postgresql://delivva-dispute.c4cvypbefffg.eu-north-1.rds.amazonaws.com:5432/postgres
+    username: postgres
+    password: password
+    driver-class-name: org.postgresql.Driver
+  rabbitmq:
+    username: Delivva
+    password: delivvadevelopers4
+    addresses: amqps://b-24e330b5-34c3-48c1-87df-d65aefcd7ec3.mq.us-east-1.amazonaws.com:5671
+
+cloud:
+  core-service:
+    url: http://Delivva-core-env.eba-n3sj6avt.eu-north-1.elasticbeanstalk.com
