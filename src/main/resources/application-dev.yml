@@ -2,7 +2,7 @@ spring:
   config:
     import: optional:file:.env[.properties]
   datasource:
-    url: delivva-dispute.c4cvypbefffg.eu-north-1.rds.amazonaws.com
+    url: jdbc:postgresql://delivva-dispute.c4cvypbefffg.eu-north-1.rds.amazonaws.com:5432/postgres
     username: postgres
     password: password
     driver-class-name: org.postgresql.Driver
