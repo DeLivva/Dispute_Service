@@ -13,4 +13,4 @@ spring:
 
 cloud:
   core-service:
-    url: http://localhost:5000
+    url: http://Delivva-core-env.eba-n3sj6avt.eu-north-1.elasticbeanstalk.com

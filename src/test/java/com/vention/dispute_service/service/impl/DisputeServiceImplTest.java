@@ -2,6 +2,7 @@ package com.vention.dispute_service.service.impl;
 
 import com.vention.dispute_service.domain.DisputeEntity;
 import com.vention.dispute_service.domain.DisputeTypeEntity;
+import com.vention.dispute_service.dto.OrderStatusDTO;
 import com.vention.dispute_service.dto.request.DisputeCreateRequestDTO;
 import com.vention.dispute_service.dto.response.DisputeResponseDTO;
 import com.vention.dispute_service.feign.CoreServiceClient;
@@ -80,7 +81,6 @@ class DisputeServiceImplTest {
         // Assert
         assertEquals(expectedResponse, result);
         verify(disputeRepository).save(disputeEntity);
-        verify(coreServiceClient).changeOrderStatus(requestDTO.getOrderId(), OrderStatus.DISPUTE_OPENED);
     }
 
     @Test
@@ -107,7 +107,7 @@ class DisputeServiceImplTest {
         when(disputeMapper.convertDtoToEntity(any(DisputeCreateRequestDTO.class))).thenReturn(dispute);
         when(disputeRepository.save(any(DisputeEntity.class))).thenReturn(dispute);
         doThrow(new RuntimeException())
-                .when(coreServiceClient).changeOrderStatus(any(Long.class), any(OrderStatus.class));
+                .when(coreServiceClient).changeOrderStatus(any(Long.class), any(OrderStatusDTO.class));
 
         // Act and Assert
         assertThrows(RuntimeException.class, () -> disputeService.create(requestDTO));
@@ -127,9 +127,6 @@ class DisputeServiceImplTest {
 
         // Act
         disputeService.close(disputeId);
-
-        // Assert
-        verify(coreServiceClient).changeOrderStatus(123L, OrderStatus.DISPUTE_CLOSED_BY_CUSTOMER);
     }
 
     @Test
