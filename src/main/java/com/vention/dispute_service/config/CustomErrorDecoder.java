@@ -24,8 +24,12 @@ public class CustomErrorDecoder {
             log.warn(methodKey, response);
             int status = response.status();
             try {
-                String responseBody = Util.toString(response.body().asReader());
-                String message = extractErrorMessage(responseBody);
+                String message = null;
+                if (response.body() != null) {
+                    String responseBody = Util.toString(response.body().asReader());
+                    message = extractErrorMessage(responseBody);
+                }
+
 
                 switch (status) {
                     case 404 -> {

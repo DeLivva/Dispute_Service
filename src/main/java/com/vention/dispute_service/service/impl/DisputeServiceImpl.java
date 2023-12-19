@@ -3,6 +3,7 @@ package com.vention.dispute_service.service.impl;
 import com.vention.dispute_service.domain.DisputeEntity;
 import com.vention.dispute_service.domain.DisputeTypeEntity;
 import com.vention.dispute_service.dto.DisputeCreatedNotificationDTO;
+import com.vention.dispute_service.dto.OrderStatusDTO;
 import com.vention.dispute_service.dto.request.DisputeCreateRequestDTO;
 import com.vention.dispute_service.dto.response.DisputeResponseDTO;
 import com.vention.dispute_service.exception.ActionNotAllowedException;
@@ -47,7 +48,7 @@ public class DisputeServiceImpl implements DisputeService {
         var disputeEntity = disputeMapper.convertDtoToEntity(requestDTO);
         disputeEntity.setType(disputeType);
         disputeEntity = disputeRepository.save(disputeEntity);
-        coreServiceClient.changeOrderStatus(requestDTO.getOrderId(), OrderStatus.DISPUTE_OPENED);
+        coreServiceClient.changeOrderStatus(requestDTO.getOrderId(), new OrderStatusDTO(OrderStatus.DISPUTE_OPENED.name()));
         sendNotification(disputeEntity);
         return disputeMapper.convertEntityToDtoWithStatus(disputeEntity, OrderStatus.DISPUTE_OPENED);
     }
@@ -72,7 +73,7 @@ public class DisputeServiceImpl implements DisputeService {
                 .orElseThrow(() -> new DataNotFoundException("Dispute not found with id: " + id));
         var status = getStatusByOrderId(dispute.getOrderId());
         if (Objects.equals(status, OrderStatus.DISPUTE_OPENED)) {
-            coreServiceClient.changeOrderStatus(dispute.getOrderId(), OrderStatus.DISPUTE_CLOSED_BY_CUSTOMER);
+            coreServiceClient.changeOrderStatus(dispute.getOrderId(), new OrderStatusDTO(OrderStatus.DISPUTE_CLOSED_BY_CUSTOMER.name()));
         } else {
             throw new ActionNotAllowedException("Disputes under consideration cannot be closed");
         }
