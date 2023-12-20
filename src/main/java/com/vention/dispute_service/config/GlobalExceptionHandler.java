@@ -17,12 +17,6 @@ import java.time.ZonedDateTime;
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(value = FeignException.class)
-    public ResponseEntity<String> feignClientExceptionHandler(FeignException e) {
-        log.warn(e.getMessage());
-        return ResponseEntity.status(e.status()).body(e.getMessage());
-    }
-
     @ExceptionHandler(value = ActionNotAllowedException.class)
     public ResponseEntity<String> actionNotAllowedExceptionHandler(ActionNotAllowedException e) {
         return new ResponseEntity<>(e.getMessage(), HttpStatus.FORBIDDEN);
