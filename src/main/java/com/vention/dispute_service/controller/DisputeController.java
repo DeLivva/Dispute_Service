@@ -34,7 +34,7 @@ public class DisputeController {
     @PutMapping("/close/{id}")
     public ResponseEntity<Void> close(@PathVariable("id") Long id) {
         disputeService.close(id);
-        return ResponseEntity.ok().build();
+        return new ResponseEntity<>(HttpStatus.valueOf(201));
     }
 
     @GetMapping
