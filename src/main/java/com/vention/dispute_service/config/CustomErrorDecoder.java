@@ -59,6 +59,10 @@ public class CustomErrorDecoder {
     }
 
     private String extractErrorMessage(String responseBody) {
-        return JsonParser.parseString(responseBody).getAsJsonObject().get("message").getAsString();
+        try {
+            return JsonParser.parseString(responseBody).getAsJsonObject().get("message").getAsString();
+        } catch (RuntimeException e) {
+            return responseBody;
+        }
     }
 }
