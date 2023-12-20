@@ -16,7 +16,7 @@ public class FeignClientConfig {
     public static class CoreFeignClient implements RequestInterceptor {
         @Override
         public void apply(RequestTemplate requestTemplate) {
-            requestTemplate.header("host", "delivva-dispute-env.eba-chhhwrqq.eu-north-1.elasticbeanstalk.com");
+            requestTemplate.header("source", "delivva-dispute-env.eba-chhhwrqq.eu-north-1.elasticbeanstalk.com");
         }
     }
 }
