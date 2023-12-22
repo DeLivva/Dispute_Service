@@ -63,6 +63,9 @@ public class DisputeServiceImpl implements DisputeService {
         notificationDTO.setOrderId(dispute.getOrderId());
         notificationDTO.setDescription(dispute.getDescription());
         notificationDTO.setOwnerName(order.getCostumer().getFirstName() + " " + order.getCostumer().getLastName());
+        if (Objects.isNull(order.getCourier())) {
+            throw new ActionNotAllowedException("Order has not picked up yet, cannot open dispute for this order");
+        }
         notificationDTO.setDriverName(order.getCostumer().getFirstName() + " " + order.getCourier().getLastName());
         notificationPublisher.notifyDisputeCreation(notificationDTO);
     }
