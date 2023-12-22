@@ -107,7 +107,7 @@ class DisputeServiceImplTest {
         when(disputeMapper.convertDtoToEntity(any(DisputeCreateRequestDTO.class))).thenReturn(dispute);
         when(disputeRepository.save(any(DisputeEntity.class))).thenReturn(dispute);
         doThrow(new RuntimeException())
-                .when(coreServiceClient).changeOrderStatus(any(Long.class), any(OrderStatusDTO.class));
+                .when(coreServiceClient).changeOrderStatus(any(OrderStatusDTO.class));
 
         // Act and Assert
         assertThrows(RuntimeException.class, () -> disputeService.create(requestDTO));

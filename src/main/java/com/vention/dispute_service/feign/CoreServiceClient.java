@@ -16,6 +16,6 @@ public interface CoreServiceClient {
     @GetMapping("/api/v1/orders/{id}")
     ResponseEntity<OrderResponseDTO> getOrderById(@PathVariable("id") Long orderId);
 
-    @PutMapping("/api/v1/orders/{id}/status")
-    ResponseEntity<Void> changeOrderStatus(@PathVariable("id") Long orderId, @RequestBody OrderStatusDTO status);
+    @PutMapping("/api/v1/orders/status")
+    ResponseEntity<Void> changeOrderStatus(@RequestBody OrderStatusDTO status);
 }

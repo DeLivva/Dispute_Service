@@ -14,5 +14,7 @@ import lombok.Setter;
 @AllArgsConstructor
 public class OrderStatusDTO {
     @NotNull
+    private Long id;
+    @NotNull
     private String status;
 }
