@@ -37,6 +37,11 @@ public class DisputeController {
         return new ResponseEntity<>(HttpStatus.valueOf(201));
     }
 
+    @GetMapping("/{order_id}")
+    public ResponseEntity<DisputeResponseDTO> getByOrderId(@PathVariable("order_id") Long orderId) {
+        return ResponseEntity.ok(disputeService.getByOrderId(orderId));
+    }
+
     @GetMapping
     public ResponseEntity<List<DisputeResponseDTO>> getByUserId(@RequestParam("userId") Long userId) {
         return ResponseEntity.ok(disputeService.getByUserId(userId));

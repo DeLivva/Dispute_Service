@@ -105,6 +105,13 @@ public class DisputeServiceImpl implements DisputeService {
                 .build();
     }
 
+    @Override
+    public DisputeResponseDTO getByOrderId(Long orderId) {
+        var dispute = disputeRepository.findByOrderId(orderId)
+                .orElseThrow(() -> new DataNotFoundException("dispute not found with order id: " + orderId));
+        return disputeMapper.convertEntityToDtoWithStatus(dispute, getStatusByOrderId(orderId));
+    }
+
     private DisputeTypeEntity getDisputeType(Long disputeTypeId) {
         return disputeTypeRepository.findById(disputeTypeId)
                 .orElseThrow(() -> new DataNotFoundException("Dispute type not found with id: " + disputeTypeId));
