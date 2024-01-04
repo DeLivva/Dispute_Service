@@ -6,10 +6,13 @@ import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface DisputeRepository extends JpaRepository<DisputeEntity, Long>, PagingAndSortingRepository<DisputeEntity, Long> {
     List<DisputeEntity> findByUserId(Long userId);
 
     Boolean existsByOrderId(Long orderId);
+
+    Optional<DisputeEntity> findByOrderId(Long orderId);
 }

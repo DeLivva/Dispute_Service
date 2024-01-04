@@ -15,4 +15,6 @@ public interface DisputeService {
     List<DisputeResponseDTO> getByUserId(Long userId);
 
     ResponseWithPaginationDTO<DisputeResponseDTO> getAll(PaginationRequestDTO requestDTO);
+
+    DisputeResponseDTO getByOrderId(Long orderId);
 }
