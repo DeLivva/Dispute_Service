@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -15,4 +16,5 @@ public class DisputeCreatedNotificationDTO implements Serializable {
     private String ownerName;
     private String driverName;
     private String description;
+    private List<String> adminEmails;
 }

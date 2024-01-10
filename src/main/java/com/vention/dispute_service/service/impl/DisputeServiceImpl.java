@@ -7,6 +7,7 @@ import com.vention.dispute_service.dto.OrderStatusDTO;
 import com.vention.dispute_service.dto.request.DisputeCreateRequestDTO;
 import com.vention.dispute_service.dto.response.DisputeResponseDTO;
 import com.vention.dispute_service.exception.ActionNotAllowedException;
+import com.vention.dispute_service.feign.AuthClient;
 import com.vention.dispute_service.feign.CoreServiceClient;
 import com.vention.dispute_service.mapper.DisputeMapper;
 import com.vention.dispute_service.repository.DisputeRepository;
@@ -35,8 +36,8 @@ public class DisputeServiceImpl implements DisputeService {
     private final DisputeTypeRepository disputeTypeRepository;
     private final DisputeMapper disputeMapper;
     private final CoreServiceClient coreServiceClient;
-
     private final NotificationPublisher notificationPublisher;
+    private final AuthClient authClient;
 
     @Override
     @Transactional
@@ -63,11 +64,12 @@ public class DisputeServiceImpl implements DisputeService {
         notificationDTO.setOrderId(dispute.getOrderId());
         notificationDTO.setDescription(dispute.getDescription());
         notificationDTO.setOwnerName(order.getCostumer().getFirstName() + " " + order.getCostumer().getLastName());
+        notificationDTO.setAdminEmails(authClient.getAllAdminsEmail());
         if (Objects.isNull(order.getCourier())) {
             throw new ActionNotAllowedException("Order has not picked up yet, cannot open dispute for this order");
         }
         notificationDTO.setDriverName(order.getCostumer().getFirstName() + " " + order.getCourier().getLastName());
-        notificationPublisher.notifyDisputeCreation(notificationDTO);
+        notificationPublisher.notifyDisputeCreation(notificationDTO, order.getCourier().getEmail());
     }
 
     @Override
