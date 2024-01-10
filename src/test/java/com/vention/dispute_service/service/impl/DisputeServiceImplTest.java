@@ -5,6 +5,7 @@ import com.vention.dispute_service.domain.DisputeTypeEntity;
 import com.vention.dispute_service.dto.OrderStatusDTO;
 import com.vention.dispute_service.dto.request.DisputeCreateRequestDTO;
 import com.vention.dispute_service.dto.response.DisputeResponseDTO;
+import com.vention.dispute_service.feign.AuthClient;
 import com.vention.dispute_service.feign.CoreServiceClient;
 import com.vention.dispute_service.mapper.DisputeMapper;
 import com.vention.dispute_service.repository.DisputeRepository;
@@ -57,6 +58,9 @@ class DisputeServiceImplTest {
     @Mock
     private NotificationPublisher notificationPublisher;
 
+    @Mock
+    private AuthClient authClient;
+
     @InjectMocks
     private DisputeServiceImpl disputeService;
 
@@ -74,7 +78,7 @@ class DisputeServiceImplTest {
         when(disputeRepository.save(any(DisputeEntity.class))).thenReturn(disputeEntity);
         when(disputeMapper.convertEntityToDtoWithStatus(disputeEntity, OrderStatus.DISPUTE_OPENED)).thenReturn(expectedResponse);
         when(coreServiceClient.getOrderById(any())).thenReturn(ResponseEntity.ok(getOrderResponse()));
-
+        when(authClient.getAllAdminsEmail()).thenReturn(List.of("testadmin@gmail.com"));
         // Act
         DisputeResponseDTO result = disputeService.create(requestDTO);
 
