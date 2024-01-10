@@ -12,3 +12,5 @@ spring:
 cloud:
   core-service:
     url: http://Delivva-core-env.eba-n3sj6avt.eu-north-1.elasticbeanstalk.com
+  auth-service:
+    url: http://Delivva-testing-environment-env.eba-jighrhr6.us-east-1.elasticbeanstalk.com
